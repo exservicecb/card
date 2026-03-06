@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>모바일 명함</title>
+
+<style>
+body { font-family: Arial, sans-serif; background:#f5f6f8; margin:0; }
+.container { max-width:420px; margin:auto; padding:16px; }
+.card-image { width:100%; border-radius:12px; }
+.actions { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
+.action-btn {
+  padding:14px;
+  background:#2F3A8F;
+  color:#fff;
+  text-align:center;
+  border-radius:10px;
+  text-decoration:none;
+}
+footer { text-align:center; font-size:12px; color:#999; margin-top:24px; }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<img id="cardImage" class="card-image">
+
+<div class="actions">
+  <a id="callBtn" class="action-btn">📞 전화</a>
+  <a id="smsBtn" class="action-btn">💬 문자</a>
+  <a id="mailBtn" class="action-btn">✉️ 이메일</a>
+  <a id="saveBtn" class="action-btn">📇 연락처 저장</a>
+</div>
+
+<footer>NFC Mobile Card · 한국도로공사서비스</footer>
+</div>
+
+<script src="js/contact-save.js"></script>
+
+<script>
+async function loadCard() {
+
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  if (!id) {
+    document.body.innerHTML = "<h2 style='text-align:center'>잘못된 접근입니다.</h2>";
+    return;
+  }
+
+  const response = await fetch("data.json");
+  const data = await response.json();
+
+  const person = data[id];
+
+  if (!person) {
+    document.body.innerHTML = "<h2 style='text-align:center'>존재하지 않는 사용자입니다.</h2>";
+    return;
+  }
+
+  document.title = person.name + " 모바일 명함";
+
+  document.getElementById("cardImage").src = "images/" + person.image;
+
+  document.getElementById("callBtn").href = "tel:" + person.phone;
+
+  document.getElementById("smsBtn").href = "sms:" + person.phone;
+
+  document.getElementById("mailBtn").href = "mailto:" + person.email;
+
+  // ⭐ 연락처 저장 버튼 (부서 포함)
+  document.getElementById("saveBtn").onclick = function() {
+    saveContact(
+      person.name,
+      person.phone,
+      person.email,
+      person.department
+    );
+  };
+
+}
+
+loadCard();
+</script>
+
+</body>
+</html>
